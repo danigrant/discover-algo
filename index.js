@@ -119,10 +119,28 @@ app.post('/competition/:number', async (req, res) => {
       let json = await response.json()
       let balance = json.amount
 
-      res.send({ balance })
+      // TODO: irl i will send the balance but for now i am going to send a little bit so i can keep testing
 
       // send submitter the algos in the escrow account
+      let params = await algodclient.getTransactionParams()
+      let endRound = params.lastRound + parseInt(1000)
 
+      let txn = {
+        "from": algorandEscrowAccounts[competitionIndex].recovered_account.addr,
+        "to": req.body.algorand_address,
+        "fee": 1000,
+        "amount": 1000, // TODO: irl i will send the balance but for now i am going to send a little bit so i can keep testing
+        "firstRound": params.lastRound,
+        "lastRound": endRound,
+        "genesisID": params.genesisID,
+        "genesisHash": params.genesishashb64,
+        "note": new Uint8Array(0)
+      }
+      //sign the transaction
+      let signedTxn = algosdk.signTransaction(txn, algorandEscrowAccounts[competitionIndex].recovered_account.sk)
+      //submit the transaction
+      let tx = (await algodclient.sendRawTransaction(signedTxn.blob))
+      res.send({ "Transaction": tx.txId })
     }
   }
 })
