@@ -88,6 +88,8 @@ const algorandEscrowAccounts = [
   }
 ]
 
+const { saveSolutionToDB, getCompetitions } = require('firebase')
+
 app.use(express.json())
 app.use(cors())
 
@@ -127,6 +129,11 @@ app.post('/competition/:number', async (req, res) => {
       res.set('access-control-allow-origin', '*')
       res.send({ errorMessage: 'sorry that is not a solution' })
     } else {
+      // save it to the db and then pay them out
+
+      // save to db
+      await saveSolutionToDB(req.params.number, req.body.a, req.body.b, req.body.c, req.body.submitterName, req.body.algorandAddress, req.body.submitterEmail)
+
       // get balance of escrow account
       let response = await fetch(`${algorandNode}/v1/account/${algorandEscrowAccounts[competitionIndex].recovered_account.addr}`, {
         method: 'GET',
