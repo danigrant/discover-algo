@@ -96,6 +96,7 @@ app.get('/', (req, res) => {
       "escrow_addr": account.recovered_account.addr
     }
   })
+  res.set('access-control-allow-origin', '*')
   res.send(competitions)
 })
 
