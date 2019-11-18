@@ -103,10 +103,12 @@ app.post('/competition/:number', async (req, res) => {
   let competitionIndex = ongoingCompetitions.indexOf(parseInt(req.params.number))
   // check that req.params.number is a valid ongoing competition
   if (competitionIndex == -1) {
+    res.set('access-control-allow-origin', '*')
     res.send({ errorMessage: 'very nice try' })
   } else {
     // check that the competition is still unsolved
     if (ongoingCompetitions[competitionIndex].solved == true) {
+      res.set('access-control-allow-origin', '*')
       res.send({ errorMessage: 'very nice try this has already been solved' })
     }
     // check that the submission works
@@ -119,6 +121,7 @@ app.post('/competition/:number', async (req, res) => {
     let cCubed = bigInt(c).pow(3)
 
     if (aCubed.plus(bCubed).plus(cCubed) != req.params.number) {
+      res.set('access-control-allow-origin', '*')
       res.send({ errorMessage: 'sorry that is not a solution' })
     } else {
       // get balance of escrow account
@@ -153,6 +156,7 @@ app.post('/competition/:number', async (req, res) => {
       let signedTxn = algosdk.signTransaction(txn, algorandEscrowAccounts[competitionIndex].recovered_account.sk)
       //submit the transaction
       let tx = (await algodclient.sendRawTransaction(signedTxn.blob))
+      res.set('access-control-allow-origin', '*')
       res.send({ "Transaction": tx.txId })
     }
   }
