@@ -79,12 +79,25 @@ const algorandEscrowAccounts = [
     competition: ongoingCompetitions[9],
     recovered_account: algosdk.mnemonicToSecretKey(process.env.ALGORAND_MNEMONIC_9),
     solved: false
+  },
+  {
+    competition: ongoingCompetitions[10],
+    recovered_account: algosdk.mnemonicToSecretKey(process.env.ALGORAND_MNEMONIC_10),
+    solved: false
   }
 ]
 
 app.use(express.json())
 
-app.get('/', (req, res) => res.send('hello algo world'))
+app.get('/', (req, res) => {
+  let competitions = algorandEscrowAccounts.map((account) => {
+    return {
+      "number": account.competition,
+      "escrow_addr": account.recovered_account.addr
+    }
+  })
+  res.send(competitions)
+})
 
 app.post('/competition/:number', async (req, res) => {
   let competitionIndex = ongoingCompetitions.indexOf(parseInt(req.params.number))
