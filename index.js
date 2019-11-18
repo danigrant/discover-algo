@@ -13,6 +13,7 @@
 
 const express = require('express')
 const app = express()
+const cors = require('cors')
 const port = process.env.PORT || 8080
 const fetch = require('node-fetch')
 const bigInt = require("big-integer")
@@ -88,6 +89,7 @@ const algorandEscrowAccounts = [
 ]
 
 app.use(express.json())
+app.use(cors())
 
 app.get('/', (req, res) => {
   let competitions = algorandEscrowAccounts.map((account) => {
