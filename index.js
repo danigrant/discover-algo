@@ -24,7 +24,7 @@ const ongoingCompetitions = [ 6, 42, 114, 165, 390, 579, 627, 633, 732, 906, 921
 
 const algosdk = require('algosdk')
 
-const algorandToken = { 'X-API-Key': process.env.PURESTAKE_API_KEY }
+const algorandToken = { 'X-API-Key': process.env.PURESTAKE_API_KEY, 'Content-Type': 'application/x-binary' }
 const algorandNode = "https://betanet-algorand.api.purestake.io/ps1"
 const algorandNodePort = ""
 
@@ -175,10 +175,14 @@ app.post('/competition/:number', async (req, res) => {
       //sign the transaction
       let signedTxn = algosdk.signTransaction(txn, algorandEscrowAccounts[competitionIndex].recovered_account.sk)
       //submit the transaction
-      // let tx = await algodclient.sendRawTransaction(signedTxn.blob)
-      res.set('access-control-allow-origin', '*')
-      res.send({ "Transaction": 'well not really' }) //: tx.txId })
-
+      try {
+        let tx = await algodclient.sendRawTransaction(signedTxn.blob)
+        res.set('access-control-allow-origin', '*')
+        res.send({ "Transaction": tx.txId })
+      } catch(e) {
+        res.set('access-control-allow-origin', '*')
+        res.send({ errorMessage: e })
+      }
     }
   }
 })
