@@ -20,7 +20,7 @@ const bigInt = require("big-integer")
 
 require('dotenv').config()
 
-const ongoingCompetitions = [ 6, 114, 165, 390, 579, 627, 633, 732, 906, 921, 975 ]
+const ongoingCompetitions = [ 6, 42, 114, 165, 390, 579, 627, 633, 732, 906, 921, 975 ]
 
 const algosdk = require('algosdk')
 
@@ -85,10 +85,15 @@ const algorandEscrowAccounts = [
     competition: ongoingCompetitions[10],
     recovered_account: algosdk.mnemonicToSecretKey(process.env.ALGORAND_MNEMONIC_10),
     solved: false
+  },
+  {
+    competition: ongoingCompetitions[11],
+    recovered_account: algosdk.mnemonicToSecretKey(process.env.ALGORAND_MNEMONIC_10),
+    solved: false
   }
 ]
 
-const { saveSolutionToDB, getCompetitions } = require('firebase')
+const firebase = require('./firebase')
 
 app.use(express.json())
 app.use(cors())
@@ -129,11 +134,12 @@ app.post('/competition/:number', async (req, res) => {
       res.set('access-control-allow-origin', '*')
       res.send({ errorMessage: 'sorry that is not a solution' })
     } else {
-      // save it to the db and then pay them out
+      // mark as solved here then save it to the db and pay them out from the escrowed account
+      algorandEscrowAccounts[competitionIndex].solved = true
 
       // save to db
-      await saveSolutionToDB(req.params.number, req.body.a, req.body.b, req.body.c, req.body.submitterName, req.body.algorandAddress, req.body.submitterEmail)
-
+      await firebase.saveSolutionToDB(req.params.number, req.body.a, req.body.b, req.body.c, req.body.submitterName, req.body.algorandAddress, req.body.submitterEmail)
+/*
       // get balance of escrow account
       let response = await fetch(`${algorandNode}/v1/account/${algorandEscrowAccounts[competitionIndex].recovered_account.addr}`, {
         method: 'GET',
@@ -165,9 +171,10 @@ app.post('/competition/:number', async (req, res) => {
       //sign the transaction
       let signedTxn = algosdk.signTransaction(txn, algorandEscrowAccounts[competitionIndex].recovered_account.sk)
       //submit the transaction
-      let tx = (await algodclient.sendRawTransaction(signedTxn.blob))
+      let tx = await algodclient.sendRawTransaction(signedTxn.blob)
       res.set('access-control-allow-origin', '*')
       res.send({ "Transaction": tx.txId })
+      */
     }
   }
 })

@@ -34,16 +34,23 @@ async function getCompetitions() {
   return data
 }
 
-async function getCompetitionIDByNumber() {
-  let snapshot = await competitionsRef.where('number', '==', number).get()
+async function getCompetitionIDByNumber(number) {
+  console.log('in getCompetitionIDByNumber, number is', 6);
+  let snapshot = await competitionsRef.where('number', '==', parseInt(number)).get()
   let competitionDocID = ""
+  if (snapshot.empty) {
+      console.log('No matching documents.');
+      return;
+    }
   await snapshot.forEach(doc => {
+    console.log(doc.id);
     competitionDocID = doc.id
   })
   return competitionDocID
 }
 
 async function saveSolutionToDB(number, a, b, c, solverName, solverAlgorandAddress, solverEmail) {
+  // console.log('in saveSolutionToDB number:', number, 'a:', a, 'b:', b, 'c:', c, 'solverName:', solverName, 'solverAlgorandAddress:', solverAlgorandAddress, 'solverEmail', solverEmail )
   let competitionDocID = await getCompetitionIDByNumber(number)
   let competitionRef = competitionsRef.doc(competitionDocID)
   competitionRef.update({
@@ -58,4 +65,4 @@ async function saveSolutionToDB(number, a, b, c, solverName, solverAlgorandAddre
   })
 }
 
-module.exports = { saveSolutionToDB, getCompetitions }
+module.exports = { saveSolutionToDB }
