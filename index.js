@@ -127,8 +127,12 @@ app.post('/competition/:number', async (req, res) => {
     let c = req.body.c
 
     let aCubed = bigInt(a).pow(3)
+    console.log('aCubed', aCubed);
     let bCubed = bigInt(b).pow(3)
+    console.log('bCubed', bCubed);
     let cCubed = bigInt(c).pow(3)
+    console.log('cCubed', cCubed);
+    console.log("aCubed.plus(bCubed).plus(cCubed)", aCubed.plus(bCubed).plus(cCubed));
 
     if (aCubed.plus(bCubed).plus(cCubed) != req.params.number) {
       res.set('access-control-allow-origin', '*')
@@ -152,16 +156,16 @@ app.post('/competition/:number', async (req, res) => {
       let balance = json.amount
 
       // TODO: irl i will send the balance but for now i am going to send a little bit so i can keep testing
-
+*/
       // send submitter the algos in the escrow account
       let params = await algodclient.getTransactionParams()
       let endRound = params.lastRound + parseInt(1000)
 
       let txn = {
         "from": algorandEscrowAccounts[competitionIndex].recovered_account.addr,
-        "to": req.body.algorand_address,
+        "to": req.body.algorandAddress,
         "fee": 1000,
-        "amount": 1000, // TODO: irl i will send the balance but for now i am going to send a little bit so i can keep testing
+        "amount": 100000, // TODO: irl i will send the balance but for now i am going to send a little bit so i can keep testing
         "firstRound": params.lastRound,
         "lastRound": endRound,
         "genesisID": params.genesisID,
@@ -171,10 +175,10 @@ app.post('/competition/:number', async (req, res) => {
       //sign the transaction
       let signedTxn = algosdk.signTransaction(txn, algorandEscrowAccounts[competitionIndex].recovered_account.sk)
       //submit the transaction
-      let tx = await algodclient.sendRawTransaction(signedTxn.blob)
+      // let tx = await algodclient.sendRawTransaction(signedTxn.blob)
       res.set('access-control-allow-origin', '*')
-      res.send({ "Transaction": tx.txId })
-      */
+      res.send({ "Transaction": 'well not really' }) //: tx.txId })
+
     }
   }
 })
